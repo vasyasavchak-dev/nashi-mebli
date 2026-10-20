@@ -68,8 +68,10 @@
     f.src = CRM_URL;
     f.allow = 'clipboard-write; fullscreen';
     document.body.appendChild(f);
-    // якщо за 15 с CRM так і не запустилась усередині — відкриваємо напряму
-    setTimeout(() => { if (!ready) { hint.textContent = 'Відкриваю CRM напряму…'; goDirect(true); } }, 15000);
+    // через 4 с показуємо кнопку «Відкрити CRM», щоб ніколи не чекати на порожньому екрані
+    setTimeout(() => { if (!ready) hint.innerHTML = 'Завантаження триває довше, ніж зазвичай…<br><br><a href="#" id="go" style="display:inline-block;padding:10px 18px;border-radius:10px;background:#727351;color:#fff;text-decoration:none;font-weight:600">Відкрити CRM</a>'; const g = document.getElementById('go'); if (g) g.onclick = ev => { ev.preventDefault(); goDirect(true); }; }, 4000);
+    // якщо за 10 с CRM так і не запустилась усередині — відкриваємо напряму
+    setTimeout(() => { if (!ready) { hint.textContent = 'Відкриваю CRM напряму…'; goDirect(true); } }, 10000);
   }
 
   // service worker — потрібен, щоб Android пропонував «Встановити застосунок»
