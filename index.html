@@ -44,10 +44,11 @@
   const splash = document.getElementById('splash'), hint = document.getElementById('hint');
   const hideSplash = () => { if (!document.getElementById('splash')) return; splash.style.opacity = 0; setTimeout(() => splash.remove(), 400); };
   // Деякі браузери (Safari, Chrome з блокуванням сторонніх cookie) не дають CRM працювати «всередині» іншого сайту.
-  // Тоді відкриваємо CRM напряму й запам'ятовуємо це на 7 днів, щоб наступного разу не чекати.
-  const DIRECT_KEY = 'crm_direct_until';
+  // Тоді відкриваємо CRM напряму й запам'ятовуємо це на 1 день, щоб наступного разу не чекати.
+  const DIRECT_KEY = 'crm_direct_v2';   // нова назва — стара позначка з часу збою більше не діє
+  try { localStorage.removeItem('crm_direct_until'); } catch (e) {}
   const goDirect = remember => {
-    try { if (remember) localStorage.setItem(DIRECT_KEY, String(Date.now() + 7 * 864e5)); } catch (e) {}
+    try { if (remember) localStorage.setItem(DIRECT_KEY, String(Date.now() + 864e5)); } catch (e) {}
     location.replace(CRM_URL);
   };
   if (!/^https:\/\/script\.google\.com\/.+\/exec/.test(CRM_URL)) {
