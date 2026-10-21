@@ -61,10 +61,17 @@
     // CRM сама повідомляє, що запустилась (або що не змогла з'єднатися)
     window.addEventListener('message', e => {
       const st = e.data && e.data.crm;
-      if (st === 'alive') { alive = true; hideSplash(); }   // CRM відкрилась — далі вона сама показує завантаження
-      if (st === 'ready') { ready = alive = true; hideSplash(); }
+      // 'alive' — сторінка CRM відкрилась (лише скасовує перехід «напряму»); заставку ховаємо, коли CRM повністю готова:
+      // на телефонах вкладена сторінка Google інколи не перемальовується сама, доки не торкнешся екрана
+      if (st === 'alive') { alive = true; hint.textContent = 'Підключаюся до таблиці…'; }
+      if (st === 'ready') { ready = alive = true; hideSplash(); nudge(); }
       if (st === 'fail' && !ready) goDirect(false);
     });
+    // змусити браузер перемалювати CRM (без цього iPhone інколи показує старий кадр до першого дотику)
+    const nudge = () => [50, 400, 1200].forEach(ms => setTimeout(() => {
+      f.style.transform = 'translateZ(0)'; void f.offsetHeight;
+      requestAnimationFrame(() => { f.style.transform = ''; });
+    }, ms));
     const f = document.createElement('iframe');
     f.id = 'crm';
     f.src = CRM_URL;
