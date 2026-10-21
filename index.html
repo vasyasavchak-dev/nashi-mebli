@@ -45,8 +45,8 @@
   const hideSplash = () => { if (!document.getElementById('splash')) return; splash.style.opacity = 0; setTimeout(() => splash.remove(), 400); };
   // Деякі браузери (Safari, Chrome з блокуванням сторонніх cookie) не дають CRM працювати «всередині» іншого сайту.
   // Тоді відкриваємо CRM напряму й запам'ятовуємо це на 1 день, щоб наступного разу не чекати.
-  const DIRECT_KEY = 'crm_direct_v2';   // нова назва — стара позначка з часу збою більше не діє
-  try { localStorage.removeItem('crm_direct_until'); } catch (e) {}
+  const DIRECT_KEY = 'crm_direct_v3';   // нова назва — стара позначка з часу збою більше не діє
+  try { localStorage.removeItem('crm_direct_until'); localStorage.removeItem('crm_direct_v2'); } catch (e) {}
   const goDirect = remember => {
     try { if (remember) localStorage.setItem(DIRECT_KEY, String(Date.now() + 864e5)); } catch (e) {}
     location.replace(CRM_URL);
@@ -57,12 +57,13 @@
   } else if (+(localStorage.getItem(DIRECT_KEY) || 0) > Date.now() && !/[?&]embed=1/.test(location.search)) {
     goDirect(false);
   } else {
-    let ready = false;
+    let ready = false, alive = false;
     // CRM сама повідомляє, що запустилась (або що не змогла з'єднатися)
     window.addEventListener('message', e => {
       const st = e.data && e.data.crm;
-      if (st === 'ready') { ready = true; hideSplash(); }
-      if (st === 'fail' && !ready) goDirect(true);
+      if (st === 'alive') { alive = true; hideSplash(); }   // CRM відкрилась — далі вона сама показує завантаження
+      if (st === 'ready') { ready = alive = true; hideSplash(); }
+      if (st === 'fail' && !ready) goDirect(false);
     });
     const f = document.createElement('iframe');
     f.id = 'crm';
@@ -70,9 +71,10 @@
     f.allow = 'clipboard-write; fullscreen';
     document.body.appendChild(f);
     // через 4 с показуємо кнопку «Відкрити CRM», щоб ніколи не чекати на порожньому екрані
-    setTimeout(() => { if (!ready) hint.innerHTML = 'Завантаження триває довше, ніж зазвичай…<br><br><a href="#" id="go" style="display:inline-block;padding:10px 18px;border-radius:10px;background:#727351;color:#fff;text-decoration:none;font-weight:600">Відкрити CRM</a>'; const g = document.getElementById('go'); if (g) g.onclick = ev => { ev.preventDefault(); goDirect(true); }; }, 4000);
-    // якщо за 10 с CRM так і не запустилась усередині — відкриваємо напряму
-    setTimeout(() => { if (!ready) { hint.textContent = 'Відкриваю CRM напряму…'; goDirect(true); } }, 10000);
+    setTimeout(() => { if (!alive) hint.innerHTML = 'Завантаження триває довше, ніж зазвичай…<br><br><a href="#" id="go" style="display:inline-block;padding:10px 18px;border-radius:10px;background:#727351;color:#fff;text-decoration:none;font-weight:600">Відкрити CRM</a>'; const g = document.getElementById('go'); if (g) g.onclick = ev => { ev.preventDefault(); goDirect(false); }; }, 4000);
+    // якщо за 20 с сторінка CRM так і не відкрилась усередині — відкриваємо напряму
+    // (повільний сервер Google після простою — не причина: тоді приходить 'alive')
+    setTimeout(() => { if (!alive) { hint.textContent = 'Відкриваю CRM напряму…'; goDirect(true); } }, 20000);
   }
 
   // service worker — потрібен, щоб Android пропонував «Встановити застосунок»
