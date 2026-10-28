@@ -66,6 +66,7 @@
       if (st === 'alive') { alive = true; hint.textContent = 'Підключаюся до таблиці…'; }
       if (st === 'ready') { ready = alive = true; hideSplash(); nudge(); }
       if (st === 'fail' && !ready) goDirect(false);
+      if (st === 'reload') location.reload();   // CRM просить оновитись (вийшла нова версія)
     });
     // змусити браузер перемалювати CRM (без цього iPhone інколи показує старий кадр до першого дотику)
     const nudge = () => [50, 400, 1200].forEach(ms => setTimeout(() => {

@@ -1,7 +1,7 @@
 // Мінімальний service worker: кешує лише оболонку (іконки, сторінку-обгортку),
 // щоб застосунок можна було встановити й він швидко відкривався.
 // Самі дані CRM завжди беруться з Google напряму — нічого не кешується.
-const CACHE = 'nashi-mebli-v5';
+const CACHE = 'nashi-mebli-v6';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
